@@ -1,0 +1,23 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    padding-top: 80px;
+}
+
+:root {
+    --gold: #d4af37;
+    --dark-gray: #333;
+    --light-gray: #f1f5f9;
+    --dark-blue: #0f172a;
+    --teal-400: #2dd4bf;
+    --teal-500: #14b8a6;
+    --blue-500: #0ea5e9;
+    --transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}

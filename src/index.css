@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'Sufrimeda';
+  src: url('/fonts/sufrimeda.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+.font-sufrimeda {
+  font-family: 'Sufrimeda', ui-sans-serif, system-ui, sans-serif;
+}
