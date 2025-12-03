@@ -1,7 +1,6 @@
-Olá, eu me chamo Alex e este é o documento deste trabalho em React.
+Olá me chamo Alex Alves, e esse é um fork do meu MAIN refatorado.
 
-Usei React.js devido ao meu recente aprendizado sobre JavaScript, pelo qual estudei por 12 meses.
+Após um tempo de conhecimento e com o projeto do site Fabuloja já bem desenvolvido,
+resolvi fazer uma refatoração para melhora de funcionalidade e visual.
 
-Este é um projeto "by myself", criado por mim utilizando LLMs como suporte, mas não como refatoradores de código,
-
-usando-os apenas para reler a documentação da linguagem para mim e verificar em que situações eu poderia melhorar.
+Tenho gostado mais desse.
