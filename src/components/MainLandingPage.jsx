@@ -1,9 +1,61 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ShoppingCart, X } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 
-export default function MainLandingPage() {
+// Componente ProductCard corrigido
+const ProductCard = ({ item, openModal }) => (
+  <div
+    onClick={() => openModal(item)}
+    className="group relative bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300 cursor-pointer"
+  >
+    <div className="aspect-square overflow-hidden bg-gray-100">
+      <img
+        src={item.image}
+        alt={item.name}
+        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+        loading="lazy"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+    </div>
+    <div className="p-6">
+      <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-2">{item.name}</h3>
+      <div className="flex items-center justify-between">
+        <span className="text-2xl font-bold text-sky-600">{item.price}</span>
+        <button className="bg-sky-600 text-white p-3 rounded-full hover:bg-cyan-700 transform hover:scale-110 transition-all duration-300 shadow-lg">
+          <ShoppingCart className="w-5 h-5" />
+        </button>
+      </div>
+    </div>
+    <div className="absolute top-4 right-4 bg-sky-600 text-white px-4 py-2 rounded-full text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+      VER DETALHES
+    </div>
+  </div>
+);
+
+function MainLandingPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState("Masculino");
   const [selectedProduct, setSelectedProduct] = useState(null);
+
+  useEffect(() => {
+    const aba = searchParams.get("aba");
+    if (aba === "feminina") setActiveTab("Feminina");
+    else if (aba === "masculina") setActiveTab("Masculino");
+  }, [searchParams]);
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    const abaParam = tab === "Masculino" ? "masculina" : "feminina";
+    setSearchParams({ aba: abaParam });
+    
+    // Scroll suave para a seção de produtos
+    setTimeout(() => {
+      document.getElementById('produtos')?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }, 50);
+  };
 
   const openModal = (product) => setSelectedProduct(product);
   const closeModal = () => setSelectedProduct(null);
@@ -72,6 +124,7 @@ export default function MainLandingPage() {
           </div>
         </div>
       )}
+
       <section id="produtos" className="py-20 bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
@@ -82,68 +135,62 @@ export default function MainLandingPage() {
               A elegância essencial para a moda moderna. Descubra as peças que combinam com seu estilo.
             </p>
           </div>
+
           <div className="flex justify-center mb-12">
             <div className="bg-white/80 backdrop-blur-md rounded-full shadow-xl p-2 inline-flex">
-              <section id="Seção Masculina">
               <button
-                onClick={() => setActiveTab("Masculino")}
-                className={`px-10 py-4 rounded-full text-lg font-semibold transition-all ${activeTab === "Masculino"
+                onClick={() => handleTabChange("Masculino")}
+                className={`px-10 py-4 rounded-full text-lg font-semibold transition-all ${
+                  activeTab === "Masculino"
                     ? "bg-cyan-600 text-white shadow-lg"
                     : "text-gray-700 hover:text-sky-600"
-                  }`}
+                }`}
               >
                 Moda Masculina
               </button>
-              </section>
-              <section id="Seção Feminina">
+
               <button
-                onClick={() => setActiveTab("Feminina")}
-                className={`px-10 py-4 rounded-full text-lg font-semibold transition-all ${activeTab === "Feminina"
-                    ? "bg-sky-600 text-white shadow-lg"
+                onClick={() => handleTabChange("Feminina")}
+                className={`px-10 py-4 rounded-full text-lg font-semibold transition-all ${
+                  activeTab === "Feminina"
+                    ? "bg-cyan-600 text-white shadow-lg"
                     : "text-gray-700 hover:text-sky-600"
-                  }`}
+                }`}
               >
                 Moda Feminina
               </button>
-              </section>
             </div>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-            {collections[activeTab].map((item) => (
-              <div
-                key={item.id}
-                className="group relative bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer"
-                onClick={() => openModal(item)}
-              >
-                <div className="aspect-square overflow-hidden bg-gray-100">
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition"></div>
-                </div>
 
-                <div className="p-6">
-                  <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-2">
-                    {item.name}
-                  </h3>
-                  <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold text-sky-600">{item.price}</span>
-                    <button className="bg-sky-600 text-white p-3 rounded-full hover:bg-cyan-700 transform hover:scale-110 transition shadow-lg">
-                      <ShoppingCart className="w-5 h-5" />
-                    </button>
-                  </div>
-                </div>
-
-                <div className="absolute top-4 right-4 bg-sky-600 text-white px-3 py-1 rounded-full text-xs font-bold opacity-0 group-hover:opacity-100 transition">
-                  VER DETALHES
-                </div>
+          {activeTab === "Masculino" && (
+            <section id="secao-masculina" className="mb-20">
+              <h2 className="text-4xl md:text-5xl font-bold text-center text-gray-900 mb-12">
+                Coleção Masculina
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                {collections.Masculino.map((item) => (
+                  <ProductCard key={item.id} item={item} openModal={openModal} />
+                ))}
               </div>
-            ))}
-          </div>
+            </section>
+          )}
+
+          {activeTab === "Feminina" && (
+            <section id="secao-feminina" className="mb-20">
+              <h2 className="text-4xl md:text-5xl font-bold text-center text-gray-900 mb-12">
+                Coleção Feminina
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                {collections.Feminina.map((item) => (
+                  <ProductCard key={item.id} item={item} openModal={openModal} />
+                ))}
+              </div>
+            </section>
+          )}
         </div>
       </section>
     </>
   );
 }
+
+export default MainLandingPage;

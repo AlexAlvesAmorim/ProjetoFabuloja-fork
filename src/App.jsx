@@ -1,29 +1,33 @@
+// App.jsx
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HeroPage from './components/HeroPage';
 import MainLandingPage from './components/MainLandingPage';
+import AboutPage from './components/AboutPage';
 import NavTopPage from './components/NavTopPage';
 import FooterPage from './components/FooterPage';
-import AboutPage from './components/AboutPage';
-
 
 function App() {
   return (
-    <div className="app">
-      <NavTopPage />
-        <HeroPage />
-          <AboutPage />
-            <MainLandingPage /> 
-              <FooterPage />
-    </div>
+    <Router>
+      <div className="App">
+        <Routes>
+          <Route 
+            path="/" 
+            element={
+              <>
+                <NavTopPage />
+                <AboutPage />
+                <HeroPage />
+                <MainLandingPage />
+                <FooterPage />
+                
+              </>
+            } 
+          />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
 export default App;
-
-
-/* APLICAR AS CORES DO PROJETO AZUL, REMOVER O ROSA (TALVEZ).
-
-A TELA INICIAL COM A LETRA BRANCA NÃO ESTÁ LEGAL. ESPAÇAMENTO ? TALVEZ ! 
-
-APLICAR A FUNCIONALIDADE MODA MASCULINA E MODA FEMININA ! TALVEZ CLICAR EM MUDAR DE COR ?
-
-AJEITAR O ZOOM DAS IMAGENS, TEM ALGUMAS COM MUITO ZOOM !! */

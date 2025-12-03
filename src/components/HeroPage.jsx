@@ -1,46 +1,65 @@
 import React, { useState, useEffect } from "react";
 import { ArrowDown } from "lucide-react";
-
-/* O SCROLL TO SECTION TA FUNCIONANDO, FALTA SÓ AJEITAR A ABA ATIVA
-(PESQUISA JA TA NO GROK, É A RESPOSTA?*/
+import { useNavigate } from "react-router-dom";
 
 const HeroPage = () => {
+  const navigate = useNavigate();
   const [isLoaded, setIsLoaded] = useState(false);
 
+  const irParaColecao = (aba) => {
+    // Correção: navegação correta para React Router v6
+    navigate(`?aba=${aba}`, { replace: false });
+
+    // Adiciona um pequeno delay para garantir que a navegação ocorra antes do scroll
+    setTimeout(() => {
+      document.getElementById('produtos')?.scrollIntoView({
+        behavior: 'smooth',
+      });
+    }, 100);
+  };
+
   useEffect(() => {
-    const desktop = new Image();
-    const mobile = new Image();
-    const onLoad = () => {
-      if (desktop.complete && mobile.complete) setIsLoaded(true);
+    // Pré-carregamento das imagens
+    const images = [
+      "/manvitrine/showcaseimg-desktop.webp",
+      "/manvitrine/showcaseimg-mobile.webp"
+    ];
+    
+    let loadedImages = 0;
+    const totalImages = images.length;
+    
+    const imageLoadHandler = () => {
+      loadedImages++;
+      if (loadedImages === totalImages) {
+        setIsLoaded(true);
+      }
     };
-    desktop.onload = mobile.onload = onLoad;
-    onLoad();
+    
+    images.forEach(src => {
+      const img = new Image();
+      img.src = src;
+      img.onload = imageLoadHandler;
+      img.onerror = imageLoadHandler; // Trata erro também
+    });
+    
+    // Fallback: se já estiverem em cache
+    setTimeout(() => {
+      setIsLoaded(true);
+    }, 500);
   }, []);
-
-const handleSectionClick = (sectionId) => {
-  document.getElementById(sectionId)?.scrollIntoView({
-    behavior: "smooth",
-    block: "start"
-  });
-
-  if (onselectionchange) {
-    onselectionchange(sectionId);
-  }
-};
-
-
-
 
   return (
     <section
-      id="home"
-      className={`relative min-h-screen flex flex-col justify-center items-center text-center transition-opacity duration-1000 mt-20 md:mt-24 ${isLoaded ? "opacity-100" : "opacity-0"
-        }`}
-    >      <picture className="absolute inset-0 -z-10">
+      id="home" 
+      className={`relative min-h-screen flex flex-col justify-center items-center text-center transition-opacity duration-1000 mt-20 md:mt-24 ${
+        isLoaded ? "opacity-100" : "opacity-0"
+      }`}
+    >      
+      <picture className="absolute inset-0 -z-10">
         <source media="(min-width: 768px)" srcSet="/manvitrine/showcaseimg-desktop.webp" />
         <img
           src="/manvitrine/showcaseimg-mobile.webp"
-
+          alt="Vitrine Fabulosa Modas"
           className="w-full h-full object-cover object-top"
           loading="eager"
         />
@@ -59,15 +78,16 @@ const handleSectionClick = (sectionId) => {
 
         <div className="flex flex-col sm:flex-row gap-8 justify-center items-center">
           <button
-            onClick={() => { document.getElementById('Seção Masculina')?.scrollIntoView({ behavior: 'smooth'}); }}
-            className="group relative overflow-hidden px-12 py-6 rounded-full text-xl font-bold text-slate-900 bg-gradient-to-r from-sky-400 via-teal-400 to-sky-400 bg-[length:200%_auto] transition-all duration-500 hover:bg-right-center hover:shadow-2xl hover:scale-110 active:scale-95 shadow-2xl">
-          
+            onClick={() => irParaColecao("masculina")}
+            className="group relative overflow-hidden px-12 py-6 rounded-full text-xl font-bold text-slate-900 bg-gradient-to-r from-sky-400 via-teal-400 to-sky-400 bg-[length:200%_auto] transition-all duration-500 hover:bg-right-center hover:shadow-2xl hover:scale-110 active:scale-95 shadow-2xl"
+          >
             <span className="relative z-10 drop-shadow">Ir para Coleção Masculina</span>
           </button>
 
           <button
-            onClick={() => { document.getElementById('Seção Feminina')?.scrollIntoView({ behavior: 'smooth'}); }}
-            className="group relative overflow-hidden px-12 py-6 rounded-full text-xl font-bold text-slate-900 bg-gradient-to-r from-sky-400 via-teal-400 to-sky-400 bg-[length:200%_auto] transition-all duration-500 hover:bg-right-center hover:shadow-2xl hover:scale-110 active:scale-95 shadow-2xl">
+            onClick={() => irParaColecao("feminina")}
+            className="group relative overflow-hidden px-12 py-6 rounded-full text-xl font-bold text-slate-900 bg-gradient-to-r from-sky-400 via-teal-400 to-sky-400 bg-[length:200%_auto] transition-all duration-500 hover:bg-right-center hover:shadow-2xl hover:scale-110 active:scale-95 shadow-2xl"
+          >
             <span className="relative z-10 drop-shadow">Ir para Coleção Feminina</span>
           </button>
         </div>
