@@ -16,8 +16,8 @@ function App() {
             element={
               <>
                 <NavTopPage />
-                <AboutPage />
                 <HeroPage />
+                <AboutPage />
                 <MainLandingPage />
                 <FooterPage />
                 

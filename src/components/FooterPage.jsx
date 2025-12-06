@@ -25,7 +25,7 @@ const FooterPage = () => {
                 <Phone className="w-5 h-5 text-sky-400" />
                 (21) 99999-8888
               </p>
-                <p className="flex items-center gap-3">
+              <p className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-sky-500" />
                 contato@fabulosamodas
               </p>
@@ -35,31 +35,31 @@ const FooterPage = () => {
               </p>
 
               <div className="">
-            <h3 className="text-2xl font-bold mb-6">Siga-nos</h3>
-            <div className="flex justify-center gap-6">
-              <a
-                href="#"
-                className="w-14 h-14 bg-rose-600/20 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-sky-600 transition-all duration-300 transform hover:scale-110 hover:shadow-2xl"
-                aria-label="Instagram"
-              >
-                <Instagram className="w-7 h-7 text-rose-400" />
-              </a>
-              <a
-                href="#"
-                className="w-14 h-14 bg-cyan-600/20 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-sky-600 transition-all duration-300 transform hover:scale-110 hover:shadow-2xl"
-                aria-label="Facebook"
-              >
-                <Facebook className="w-7 h-7 text-cyan-400" />
-              </a>
-              <a
-                href="#"
-                className="w-14 h-14 bg-rose-600/20 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-rose-600 transition-all duration-300 transform hover:scale-110 hover:shadow-2xl"
-                aria-label="Twitter"
-              >
-                <Twitter className="w-7 h-7 text-rose-400" />
-              </a>
-            </div>
-          </div>
+                <h3 className="text-2xl font-bold mb-6 text-center">Siga-nos</h3>
+                <div className="flex justify-center gap-6">
+                  <a
+                    href="#"
+                    className="w-14 h-14 bg-rose-600/50 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 transition-all duration-300 transform hover:scale-110 hover:shadow-2xl"
+                    aria-label="Instagram"
+                  >
+                    <Instagram className="w-7 h-7 text-rose-400" />
+                  </a>
+                  <a
+                    href="#"
+                    className="w-14 h-14 bg-cyan-600/50 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-sky-600 transition-all duration-300 transform hover:scale-110 hover:shadow-2xl"
+                    aria-label="Facebook"
+                  >
+                    <Facebook className="w-7 h-7 text-cyan-400" />
+                  </a>
+                  <a
+                    href="#"
+                    className="w-14 h-14 bg-sky-600/50 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-black transition-all duration-300 transform hover:scale-110 hover:shadow-2xl"
+                    aria-label="Twitter"
+                  >
+                    <Twitter className="w-7 h-7 text-white" />
+                  </a>
+                </div>
+              </div>
 
             </div>
           </div>
@@ -74,6 +74,8 @@ const FooterPage = () => {
               <p className="text-sky-400 font-bold text-lg">
                 Domingo: Descanso merecido!
               </p>
+              <p>Não Funcionamos aos Feriados</p>
+
             </div>
           </div>
         </div>

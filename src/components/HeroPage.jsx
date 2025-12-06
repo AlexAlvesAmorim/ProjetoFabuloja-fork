@@ -24,24 +24,24 @@ const HeroPage = () => {
       "/manvitrine/showcaseimg-desktop.webp",
       "/manvitrine/showcaseimg-mobile.webp"
     ];
-    
+
     let loadedImages = 0;
     const totalImages = images.length;
-    
+
     const imageLoadHandler = () => {
       loadedImages++;
       if (loadedImages === totalImages) {
         setIsLoaded(true);
       }
     };
-    
+
     images.forEach(src => {
       const img = new Image();
       img.src = src;
       img.onload = imageLoadHandler;
       img.onerror = imageLoadHandler; // Trata erro também
     });
-    
+
     // Fallback: se já estiverem em cache
     setTimeout(() => {
       setIsLoaded(true);
@@ -50,11 +50,10 @@ const HeroPage = () => {
 
   return (
     <section
-      id="home" 
-      className={`relative min-h-screen flex flex-col justify-center items-center text-center transition-opacity duration-1000 mt-20 md:mt-24 ${
-        isLoaded ? "opacity-100" : "opacity-0"
-      }`}
-    >      
+      id="home"
+      className={`relative min-h-screen flex flex-col justify-center items-center text-center transition-opacity duration-1000 mt-20 md:mt-24 ${isLoaded ? "opacity-100" : "opacity-0"
+        }`}
+    >
       <picture className="absolute inset-0 -z-10">
         <source media="(min-width: 768px)" srcSet="/manvitrine/showcaseimg-desktop.webp" />
         <img
