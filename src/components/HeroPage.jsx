@@ -7,10 +7,8 @@ const HeroPage = () => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   const irParaColecao = (aba) => {
-    // Correção: navegação correta para React Router v6
     navigate(`?aba=${aba}`, { replace: false });
 
-    // Adiciona um pequeno delay para garantir que a navegação ocorra antes do scroll
     setTimeout(() => {
       document.getElementById('produtos')?.scrollIntoView({
         behavior: 'smooth',
@@ -19,7 +17,6 @@ const HeroPage = () => {
   };
 
   useEffect(() => {
-    // Pré-carregamento das imagens
     const images = [
       "/manvitrine/showcaseimg-desktop.webp",
       "/manvitrine/showcaseimg-mobile.webp"
@@ -39,10 +36,9 @@ const HeroPage = () => {
       const img = new Image();
       img.src = src;
       img.onload = imageLoadHandler;
-      img.onerror = imageLoadHandler; // Trata erro também
+      img.onerror = imageLoadHandler;
     });
 
-    // Fallback: se já estiverem em cache
     setTimeout(() => {
       setIsLoaded(true);
     }, 500);
@@ -67,7 +63,7 @@ const HeroPage = () => {
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent -z-10"></div>
 
       <div className="relative z-10 px-6 max-w-5xl mx-auto">
-        <h1 className="font-sufrimeda text-5xl md:text-7xl lg:text-8xl font-extrabold bg-gradient-to-r from-indigo-500 to-sky-400 bg-clip-text text-transparent mb-8 tracking-tight drop-shadow-2xl ">
+        <h1 className="font-sufrimeda text-7xl md:text-7xl lg:text-9xl font-extrabold bg-gradient-to-r from-indigo-500 to-sky-400 bg-clip-text text-transparent mb-8 tracking-tight drop-shadow-2xl ">
           Fabulosa Modas
         </h1>
 

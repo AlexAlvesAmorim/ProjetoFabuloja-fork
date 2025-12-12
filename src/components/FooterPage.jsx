@@ -12,7 +12,7 @@ const FooterPage = () => {
               Fabulosa Modas
             </h2>
           </div>
-          <p className="text-xl text-gray-400">Entre em Contato</p>
+          <p className="text-xl text-gray-400">Fale conosco</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16 justify-items-center">
           <div className="bg-white/5 backdrop-blur-md rounded-3xl p-9 border border-white/10 hover:border-sky-500/30 transition-all duration-300">
