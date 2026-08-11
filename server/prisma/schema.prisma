@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Store {
+  id            String   @id @default(cuid())
+  name          String
+  whatsappNumber String
+  email         String?
+  phone         String?
+  address       String?
+  businessHours Json?
+  socialLinks   Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  categories    Category[]
+  settings      StoreSettings?
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  label     String
+  storeId   String
+  store     Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  products  Product[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([storeId])
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  price       Decimal  @db.Decimal(10, 2)
+  image       String
+  details     String?
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([categoryId])
+  @@index([active])
+}
+
+model StoreSettings {
+  id        String  @id @default(cuid())
+  storeId   String  @unique
+  store     Store   @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  key       String
+  value     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         Role     @default(ADMIN)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  lastLoginAt  DateTime?
+}
+
+model LeadEvent {
+  id           String   @id @default(cuid())
+  productId    String
+  productName  String
+  productPrice Decimal  @db.Decimal(10, 2)
+  eventType    EventType
+  sessionId    String
+  ipAddress    String?
+  userAgent    String?
+  referrer     String?
+  createdAt    DateTime @default(now())
+
+  @@index([productId])
+  @@index([eventType])
+  @@index([sessionId])
+  @@index([createdAt])
+}
+
+enum Role {
+  ADMIN
+  CUSTOMER
+}
+
+enum EventType {
+  PRODUCT_VIEW
+  BUY_CLICK
+  WHATSAPP_REDIRECT
+}
