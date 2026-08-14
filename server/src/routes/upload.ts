@@ -5,7 +5,6 @@ import { fileURLToPath } from 'url';
 import sharp from 'sharp';
 import fs from 'fs/promises';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const UPLOAD_DIR = path.join(__dirname, '../../public/uploads');
 
 async function processImage(buffer: Buffer, filename: string): Promise<string> {

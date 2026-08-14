@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import jwt from 'jsonwebtoken';
-import { env } from '../config';
+import { env } from '../config/index.js';
 import { JWTPayload } from '../types';
 import { AppError } from './errorHandler';
 
@@ -10,17 +10,29 @@ declare module 'fastify' {
   }
 }
 
+function extractToken(request: FastifyRequest): string | null {
+  // Prioridade 1: Cookie HttpOnly
+  const cookieToken = (request as any).cookies?.auth_token;
+  if (cookieToken) return cookieToken;
+
+  // Prioridade 2: Authorization header (para compatibilidade/APIs externas)
+  const authHeader = request.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    return authHeader.substring(7);
+  }
+
+  return null;
+}
+
 export const authenticate = async (
   request: FastifyRequest,
   _reply: FastifyReply
 ): Promise<void> => {
-  const authHeader = request.headers.authorization;
+  const token = extractToken(request);
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  if (!token) {
     throw AppError.unauthorized('Token de acesso não fornecido');
   }
-
-  const token = authHeader.substring(7);
 
   try {
     const decoded = jwt.verify(token, env.jwt.secret) as JWTPayload;
@@ -48,13 +60,11 @@ export const optionalAuth = async (
   request: FastifyRequest,
   _reply: FastifyReply
 ): Promise<void> => {
-  const authHeader = request.headers.authorization;
+  const token = extractToken(request);
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  if (!token) {
     return;
   }
-
-  const token = authHeader.substring(7);
 
   try {
     const decoded = jwt.verify(token, env.jwt.secret) as JWTPayload;

@@ -1,6 +1,6 @@
 import { FastifyError, FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
-import { env } from '../config';
+import { env } from '../config/index.js';
 import { ApiErrorResponse } from '../types';
 
 export class AppError extends Error {

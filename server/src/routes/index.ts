@@ -1,4 +1,6 @@
-import { FastifyInstance } from 'fastify';
+import { FastifyInstance, RawServerDefault, FastifyBaseLogger } from 'fastify';
+import { IncomingMessage, ServerResponse } from 'http';
+import { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { ProductController } from '../controllers/productController';
 import { CategoryController } from '../controllers/categoryController';
 import { LeadEventController } from '../controllers/leadEventController';
@@ -10,7 +12,15 @@ import { ProductRepository, CategoryRepository, LeadEventRepository } from '../r
 import { authenticate, authorize } from '../middleware/auth';
 import { uploadRoutes } from './upload';
 
-export async function registerRoutes(app: FastifyInstance) {
+type FastifyZod = FastifyInstance<
+  RawServerDefault,
+  IncomingMessage,
+  ServerResponse,
+  FastifyBaseLogger,
+  ZodTypeProvider
+>;
+
+export async function registerRoutes(app: FastifyZod) {
   const productRepository = new ProductRepository();
   const categoryRepository = new CategoryRepository();
   const leadEventRepository = new LeadEventRepository();
@@ -33,6 +43,8 @@ export async function registerRoutes(app: FastifyInstance) {
 
   // Public auth routes
   app.post('/api/auth/login', authController.login.bind(authController));
+  app.post('/api/auth/logout', authController.logout.bind(authController));
+  app.get('/api/auth/me', authController.me.bind(authController));
 
   // Upload routes (public for now, could add auth later)
   await app.register(uploadRoutes);
@@ -46,7 +58,7 @@ export async function registerRoutes(app: FastifyInstance) {
   app.get('/api/analytics', leadEventController.getAnalytics.bind(leadEventController));
 
   // Admin routes (protected)
-  const adminRoutes = async (app: FastifyInstance) => {
+  const adminRoutes = async (app: FastifyZod) => {
     app.addHook('preHandler', authenticate);
     app.addHook('preHandler', authorize('ADMIN'));
 

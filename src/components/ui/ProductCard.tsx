@@ -26,7 +26,7 @@ export const ProductCard = ({ item, openModal }: ProductCardProps) => (
         <span className="text-2xl font-bold text-sky-600">
           R$ {item.price.toFixed(2).replace('.', ',')}
         </span>
-        <button className="bg-sky-600 text-white p-3 rounded-full hover:bg-cyan-700 transform hover:scale-110 transition-all duration-300 shadow-lg">
+        <button className="bg-sky-600 text-white p-3 rounded-full hover:bg-cyan-700 transform hover:scale-110 transition-all duration-300 shadow-lg" aria-label="Adicionar ao carrinho">
           <ShoppingCart className="w-5 h-5" />
         </button>
       </div>

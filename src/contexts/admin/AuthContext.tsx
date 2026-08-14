@@ -25,34 +25,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-      // In a real app, you'd validate the token with the server
-      // For now, we'll decode the JWT to get user info
+    // Verifica autenticação via cookie HttpOnly (chamada /auth/me)
+    const checkAuth = async () => {
       try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        setUser({
-          id: payload.sub,
-          email: payload.email,
-          name: payload.name,
-          role: payload.role,
-        });
+        const response = await api.get<{ user: AdminUser }>('/auth/me');
+        setUser(response.user);
       } catch {
-        localStorage.removeItem('auth_token');
+        // Não autenticado - continua sem usuário
+      } finally {
+        setLoading(false);
       }
-    }
-    setLoading(false);
+    };
+    checkAuth();
   }, []);
 
   const login = async (email: string, password: string) => {
     setError(null);
     setLoading(true);
     try {
-      const response = await api.post<{ token: string; user: AdminUser }>('/auth/login', {
+      const response = await api.post<{ user: AdminUser }>('/auth/login', {
         email,
         password,
       });
-      localStorage.setItem('auth_token', response.token);
+      // Token fica no cookie HttpOnly automaticamente
       setUser(response.user);
     } catch (err) {
       if (err instanceof ApiError) {
@@ -66,8 +61,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('auth_token');
+  const logout = async () => {
+    try {
+      await api.post('/auth/logout', {});
+    } catch {
+      // Ignora erro de logout
+    }
     setUser(null);
   };
 
