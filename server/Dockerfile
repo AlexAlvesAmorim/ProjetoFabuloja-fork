@@ -1,15 +1,23 @@
-# Base image
-FROM node:20-alpine AS base
+# Base image (Debian bookworm / glibc)
+FROM node:20-bookworm-slim AS base
 
 # Install dependencies only when needed
 FROM base AS deps
-RUN apk add --no-cache libc6-compat vips-dev build-base
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        openssl \
+        ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
-RUN npm install
+RUN npm config set fetch-timeout 600000 \
+    && npm config set fetch-retries 5 \
+    && npm config set fetch-retry-mintimeout 20000 \
+    && npm config set fetch-retry-maxtimeout 120000 \
+    && npm ci
 
-# Generate Prisma Client
+# Generate Prisma Client natively for glibc (linux-openssl-3.0.x)
 COPY prisma ./prisma/
 RUN npx prisma generate
 
@@ -27,14 +35,19 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 fastify
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        openssl \
+        ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && addgroup --system --gid 1001 nodejs \
+    && adduser --system --uid 1001 fastify
 
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/docker-entrypoint.sh ./docker-entrypoint.sh
+COPY --from=builder --chown=fastify:nodejs /app/dist ./dist
+COPY --from=builder --chown=fastify:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=fastify:nodejs /app/package.json ./package.json
+COPY --from=builder --chown=fastify:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=fastify:nodejs --chmod=+x /app/docker-entrypoint.sh ./docker-entrypoint.sh
 
 USER fastify
 
