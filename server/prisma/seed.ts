@@ -1,4 +1,5 @@
 import { PrismaClient, Prisma } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -235,6 +236,10 @@ const feminineProducts: Prisma.ProductCreateInput[] = [
 async function main() {
   console.log('🌱 Starting database seed...');
 
+  // Reset products so the seed is idempotent
+  await prisma.product.deleteMany();
+  console.log('✅ Existing products removed');
+
   // Create store
   const store = await prisma.store.upsert({
     where: { id: 'main-store' },
@@ -301,7 +306,6 @@ async function main() {
   console.log(`✅ Created ${feminineProducts.length} feminine products`);
 
   // Create admin user
-  const bcrypt = await import('bcryptjs');
   const passwordHash = await bcrypt.hash('admin123', 12);
 
   await prisma.user.upsert({

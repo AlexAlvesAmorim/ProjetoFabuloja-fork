@@ -24,9 +24,10 @@ export class ProductController {
 
   async createProduct(request: FastifyRequest<{ Body: unknown }>, reply: FastifyReply) {
     const body = productCreateSchema.parse(request.body);
+    const { categoryId, ...rest } = body;
     const data = {
-      ...body,
-      category: { connect: { id: body.categoryId } },
+      ...rest,
+      category: { connect: { id: categoryId } },
     };
     const product = await this.productService.createProduct(data);
     return reply.status(201).send(product);
@@ -39,7 +40,10 @@ export class ProductController {
     const { id } = productParamsSchema.parse(request.params);
     const body = productUpdateSchema.parse(request.body);
     const data = body.categoryId
-      ? { ...body, category: { connect: { id: body.categoryId } } }
+      ? (() => {
+          const { categoryId, ...rest } = body;
+          return { ...rest, category: { connect: { id: categoryId } } };
+        })()
       : body;
     const product = await this.productService.updateProduct(id, data);
     return reply.send(product);
