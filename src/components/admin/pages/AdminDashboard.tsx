@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Package, Tag, BarChart2, TrendingUp, Loader2, ArrowUpRight, Users } from 'lucide-react';
 import { api } from '../../../lib/api';
 import { Product, Category, AnalyticsData } from '../../../types/api';
+import { formatPrice } from '../../../utils/format';
 
 export const AdminDashboard = () => {
   const [stats, setStats] = useState({
@@ -198,7 +199,7 @@ export const AdminDashboard = () => {
                     </td>
                     <td className="px-6 py-4">
                       <span className="font-semibold text-gray-900">
-                        R$ {product.price.toFixed(2).replace('.', ',')}
+                        R$ {formatPrice(product.price)}
                       </span>
                     </td>
                     <td className="px-6 py-4">

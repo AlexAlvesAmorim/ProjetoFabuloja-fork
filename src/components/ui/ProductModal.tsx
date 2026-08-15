@@ -1,5 +1,6 @@
 import { Product } from '../../types/api';
 import { X, ShoppingCart } from 'lucide-react';
+import { formatPrice } from '../../utils/format';
 
 interface ProductModalProps {
   product: Product | null;
@@ -20,7 +21,7 @@ export const ProductModal = ({
     onTrackWhatsAppRedirect(product);
     const mensagem = `Olá! Gostaria de comprar:
 *${product.name}*
-Preço: R$ ${product.price.toFixed(2).replace('.', ',')}
+Preço: R$ ${formatPrice(product.price)}
 Vim pelo site da Fabulosa Modas!`;
     const whatsappLink = `https://wa.me/5521976807111?text=${encodeURIComponent(mensagem)}`;
     window.open(whatsappLink, '_blank');
@@ -52,9 +53,7 @@ Vim pelo site da Fabulosa Modas!`;
           </div>
           <div className="p-8 md:p-12">
             <h3 className="text-3xl font-bold text-gray-900 mb-4">{product.name}</h3>
-            <p className="text-4xl font-bold text-sky-600 mb-6">
-              R$ {product.price.toFixed(2).replace('.', ',')}
-            </p>
+            <p className="text-4xl font-bold text-sky-600 mb-6">R$ {formatPrice(product.price)}</p>
             <p className="text-gray-600 text-lg leading-relaxed mb-8">
               {product.details || 'Detalhes do produto não disponíveis'}
             </p>

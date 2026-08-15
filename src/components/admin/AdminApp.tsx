@@ -30,9 +30,9 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 const AdminRoutes = () => {
   return (
     <Routes>
-      <Route path="/admin/login" element={<AdminLogin />} />
+      <Route path="login" element={<AdminLogin />} />
       <Route
-        path="/admin/*"
+        path="*"
         element={
           <ProtectedRoute>
             <AdminLayout>
@@ -49,7 +49,7 @@ const AdminRoutes = () => {
           </ProtectedRoute>
         }
       />
-      <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+      <Route path="" element={<Navigate to="dashboard" replace />} />
     </Routes>
   );
 };

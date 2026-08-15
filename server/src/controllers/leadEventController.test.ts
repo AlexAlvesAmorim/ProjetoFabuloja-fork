@@ -1,13 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { LeadEventController } from '../controllers/leadEventController';
-import { LeadEventService } from '../services';
-
-const mockLeadEventService = {
-  trackEvent: vi.fn(),
-  getEvents: vi.fn(),
-  getAnalytics: vi.fn(),
-};
 
 const validCuid = 'cuid1234567890123456789012';
 
@@ -15,12 +8,20 @@ describe('LeadEventController', () => {
   let leadEventController: LeadEventController;
   let mockRequest: Partial<FastifyRequest>;
   let mockReply: Partial<FastifyReply>;
-  let mockLeadEventService: LeadEventService;
+  let mockLeadEventService: {
+    trackEvent: ReturnType<typeof vi.fn>;
+    getEvents: ReturnType<typeof vi.fn>;
+    getAnalytics: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockLeadEventService = new LeadEventService({} as any);
-    leadEventController = new LeadEventController(mockLeadEventService);
+    mockLeadEventService = {
+      trackEvent: vi.fn(),
+      getEvents: vi.fn(),
+      getAnalytics: vi.fn(),
+    };
+    leadEventController = new LeadEventController(mockLeadEventService as any);
     mockReply = { send: vi.fn().mockReturnThis(), status: vi.fn().mockReturnThis() };
   });
 
@@ -52,12 +53,19 @@ describe('LeadEventController', () => {
 
       for (const eventType of eventTypes) {
         mockLeadEventService.trackEvent.mockResolvedValue({ id: 'evt-1' });
+        mockRequest = {
+          body: {
+            productId: validCuid,
+            productName: 'Product 1',
+            productPrice: 100,
+            eventType,
+            sessionId: 'session-1',
+          },
+        } as any;
+        mockReply = { status: vi.fn().mockReturnThis(), send: vi.fn().mockImplementation(v => v) };
 
         await expect(
-          leadEventController.trackEvent(
-            mockRequest as FastifyRequest,
-            mockReply as FastifyReply
-          )
+          leadEventController.trackEvent(mockRequest as FastifyRequest, mockReply as FastifyReply)
         ).resolves.toBeDefined();
       }
     });
@@ -66,7 +74,12 @@ describe('LeadEventController', () => {
   describe('getEvents', () => {
     it('should return paginated events', async () => {
       const mockEvents = [
-        { id: 'evt-1', eventType: 'PRODUCT_VIEW', productId: 'cuid1234567890123456789012', createdAt: new Date() },
+        {
+          id: 'evt-1',
+          eventType: 'PRODUCT_VIEW',
+          productId: 'cuid1234567890123456789012',
+          createdAt: new Date(),
+        },
       ];
 
       mockLeadEventService.getEvents.mockResolvedValue({
@@ -76,10 +89,7 @@ describe('LeadEventController', () => {
 
       mockRequest = { query: { page: '1', limit: '10' } } as any;
 
-      await leadEventController.getEvents(
-        mockRequest as FastifyRequest,
-        mockReply as FastifyReply
-      );
+      await leadEventController.getEvents(mockRequest as FastifyRequest, mockReply as FastifyReply);
 
       expect(mockLeadEventService.getEvents).toHaveBeenCalledWith({
         page: 1,

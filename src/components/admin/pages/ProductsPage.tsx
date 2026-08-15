@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Plus, Search, Edit, Trash2, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { api, ApiError } from '../../../lib/api';
 import { Product, PaginatedResponse } from '../../../types/api';
+import { formatPrice } from '../../../utils/format';
 
 export const ProductsPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -138,6 +139,14 @@ export const ProductsPage = () => {
                         <p className="text-sm text-gray-500 truncate max-w-xs">
                           {product.details || 'Sem descrição'}
                         </p>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          {[
+                            product.size && `Tam: ${product.size}`,
+                            product.color && `Cor: ${product.color}`,
+                          ]
+                            .filter(Boolean)
+                            .join(' · ') || '—'}
+                        </p>
                       </td>
                       <td className="px-6 py-4">
                         <span className="inline-flex px-2 py-1 text-xs font-medium bg-sky-100 text-sky-700 rounded-full">
@@ -146,7 +155,7 @@ export const ProductsPage = () => {
                       </td>
                       <td className="px-6 py-4">
                         <p className="font-semibold text-gray-900">
-                          R$ {product.price.toFixed(2).replace('.', ',')}
+                          R$ {formatPrice(product.price)}
                         </p>
                       </td>
                       <td className="px-6 py-4">

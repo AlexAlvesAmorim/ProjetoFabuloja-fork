@@ -5,21 +5,24 @@ import { AppError } from '../middleware/errorHandler';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
+const { prismaMock } = vi.hoisted(() => ({
+  prismaMock: {
+    user: { findUnique: vi.fn(), update: vi.fn() },
+  },
+}));
+
 vi.mock('@prisma/client', () => ({
-  PrismaClient: vi.fn().mockImplementation(() => ({
-    user: {
-      findUnique: vi.fn(),
-      update: vi.fn(),
-    },
-  })),
+  PrismaClient: vi.fn(() => prismaMock),
 }));
 
 vi.mock('bcryptjs', () => ({
+  default: { compare: vi.fn(), hash: vi.fn() },
   compare: vi.fn(),
   hash: vi.fn(),
 }));
 
 vi.mock('jsonwebtoken', () => ({
+  default: { sign: vi.fn(), verify: vi.fn() },
   sign: vi.fn(),
   verify: vi.fn(),
 }));
@@ -37,18 +40,12 @@ describe('AuthController', () => {
 
   describe('login', () => {
     it('should return 401 for invalid email', async () => {
-      const mockPrisma = { user: { findUnique: vi.fn().mockResolvedValue(null) } };
-      vi.mocked(require('@prisma/client').PrismaClient).mockImplementation(() => ({
-        user: { findUnique: vi.fn().mockResolvedValue(null) },
-      }));
+      prismaMock.user.findUnique.mockResolvedValue(null);
 
       mockRequest = { body: { email: 'wrong@test.com', password: 'wrong' } } as any;
       mockReply = { status: vi.fn().mockReturnThis(), send: vi.fn() };
 
-      await authController.login(
-        mockRequest as FastifyRequest,
-        mockReply as FastifyReply
-      );
+      await authController.login(mockRequest as FastifyRequest, mockReply as FastifyReply);
 
       expect(mockReply.status).toHaveBeenCalledWith(401);
       expect(mockReply.send).toHaveBeenCalledWith({ message: 'Credenciais inválidas' });
@@ -57,25 +54,18 @@ describe('AuthController', () => {
     it('should return 401 for invalid password', async () => {
       vi.mocked(bcrypt.compare).mockResolvedValue(false);
 
-      vi.mocked(require('@prisma/client').PrismaClient).mockImplementation(() => ({
-        user: {
-          findUnique: vi.fn().mockResolvedValue({
-            id: 'cuid1234567890123456789012',
-            email: 'test@test.com',
-            passwordHash: '$2b$12$hash',
-            name: 'Test',
-            role: 'ADMIN',
-          }),
-        },
-      }));
+      prismaMock.user.findUnique.mockResolvedValue({
+        id: 'cuid1234567890123456789012',
+        email: 'test@test.com',
+        passwordHash: '$2b$12$hash',
+        name: 'Test',
+        role: 'ADMIN',
+      });
 
       mockRequest = { body: { email: 'test@test.com', password: 'wrong' } } as any;
       mockReply = { status: vi.fn().mockReturnThis(), send: vi.fn() };
 
-      await authController.login(
-        mockRequest as FastifyRequest,
-        mockReply as FastifyReply
-      );
+      await authController.login(mockRequest as FastifyRequest, mockReply as FastifyReply);
 
       expect(mockReply.status).toHaveBeenCalledWith(401);
       expect(mockReply.send).toHaveBeenCalledWith({ message: 'Credenciais inválidas' });
@@ -85,41 +75,40 @@ describe('AuthController', () => {
       vi.mocked(bcrypt.compare).mockResolvedValue(true);
       vi.mocked(jwt.sign).mockReturnValue('fake-jwt-token');
 
-      vi.mocked(require('@prisma/client').PrismaClient).mockImplementation(() => ({
-        user: {
-          findUnique: vi.fn().mockResolvedValue({
-            id: 'cuid1234567890123456789012',
-            email: 'test@test.com',
-            passwordHash: '$2b$12$hash',
-            name: 'Test User',
-            role: 'ADMIN',
-          }),
-          update: vi.fn().mockResolvedValue({}),
-        },
-      }));
+      prismaMock.user.findUnique.mockResolvedValue({
+        id: 'cuid1234567890123456789012',
+        email: 'test@test.com',
+        passwordHash: '$2b$12$hash',
+        name: 'Test User',
+        role: 'ADMIN',
+      });
+      prismaMock.user.update.mockResolvedValue({});
 
       mockRequest = { body: { email: 'test@test.com', password: 'password' } } as any;
       mockReply = { send: vi.fn(), setCookie: vi.fn() };
 
-      await authController.login(
-        mockRequest as FastifyRequest,
-        mockReply as FastifyReply
-      );
+      await authController.login(mockRequest as FastifyRequest, mockReply as FastifyReply);
 
-      expect(mockReply.setCookie).toHaveBeenCalledWith('auth_token', 'fake-jwt-token', expect.objectContaining({
-        httpOnly: true,
-        sameSite: 'strict',
-        secure: false,
-        path: '/',
-      }));
-      expect(mockReply.send).toHaveBeenCalledWith(expect.objectContaining({
-        user: expect.objectContaining({
-          id: 'cuid1234567890123456789012',
-          email: 'test@test.com',
-          name: 'Test User',
-          role: 'ADMIN',
-        }),
-      }));
+      expect(mockReply.setCookie).toHaveBeenCalledWith(
+        'auth_token',
+        'fake-jwt-token',
+        expect.objectContaining({
+          httpOnly: true,
+          sameSite: 'strict',
+          secure: false,
+          path: '/',
+        })
+      );
+      expect(mockReply.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          user: expect.objectContaining({
+            id: 'cuid1234567890123456789012',
+            email: 'test@test.com',
+            name: 'Test User',
+            role: 'ADMIN',
+          }),
+        })
+      );
     });
   });
 
@@ -127,10 +116,7 @@ describe('AuthController', () => {
     it('should clear cookie and return success', async () => {
       mockReply = { clearCookie: vi.fn(), send: vi.fn() };
 
-      await authController.logout(
-        {} as FastifyRequest,
-        mockReply as FastifyReply
-      );
+      await authController.logout({} as FastifyRequest, mockReply as FastifyReply);
 
       expect(mockReply.clearCookie).toHaveBeenCalledWith('auth_token', { path: '/' });
       expect(mockReply.send).toHaveBeenCalledWith({ message: 'Logout realizado com sucesso' });
@@ -170,30 +156,28 @@ describe('AuthController', () => {
         role: 'ADMIN',
       });
 
-      vi.mocked(require('@prisma/client').PrismaClient).mockImplementation(() => ({
-        user: {
-          findUnique: vi.fn().mockResolvedValue({
-            id: 'cuid1234567890123456789012',
-            email: 'test@test.com',
-            name: 'Test',
-            role: 'ADMIN',
-          }),
-        },
-      }));
+      prismaMock.user.findUnique.mockResolvedValue({
+        id: 'cuid1234567890123456789012',
+        email: 'test@test.com',
+        name: 'Test',
+        role: 'ADMIN',
+      });
 
       mockRequest = { cookies: { auth_token: 'valid-token' } } as any;
       mockReply = { send: vi.fn() };
 
       await authController.me(mockRequest as FastifyRequest, mockReply as FastifyReply);
 
-      expect(mockReply.send).toHaveBeenCalledWith(expect.objectContaining({
-        user: expect.objectContaining({
-          id: 'cuid1234567890123456789012',
-          email: 'test@test.com',
-          name: 'Test',
-          role: 'ADMIN',
-        }),
-      }));
+      expect(mockReply.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          user: expect.objectContaining({
+            id: 'cuid1234567890123456789012',
+            email: 'test@test.com',
+            name: 'Test',
+            role: 'ADMIN',
+          }),
+        })
+      );
     });
   });
 });

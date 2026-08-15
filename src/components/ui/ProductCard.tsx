@@ -1,5 +1,6 @@
 import { Product } from '../../types/api';
 import { ShoppingCart } from 'lucide-react';
+import { formatPrice } from '../../utils/format';
 
 interface ProductCardProps {
   item: Product;
@@ -23,10 +24,11 @@ export const ProductCard = ({ item, openModal }: ProductCardProps) => (
     <div className="p-6">
       <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-2">{item.name}</h3>
       <div className="flex items-center justify-between">
-        <span className="text-2xl font-bold text-sky-600">
-          R$ {item.price.toFixed(2).replace('.', ',')}
-        </span>
-        <button className="bg-sky-600 text-white p-3 rounded-full hover:bg-cyan-700 transform hover:scale-110 transition-all duration-300 shadow-lg" aria-label="Adicionar ao carrinho">
+        <span className="text-2xl font-bold text-sky-600">R$ {formatPrice(item.price)}</span>
+        <button
+          className="bg-sky-600 text-white p-3 rounded-full hover:bg-cyan-700 transform hover:scale-110 transition-all duration-300 shadow-lg"
+          aria-label="Adicionar ao carrinho"
+        >
           <ShoppingCart className="w-5 h-5" />
         </button>
       </div>

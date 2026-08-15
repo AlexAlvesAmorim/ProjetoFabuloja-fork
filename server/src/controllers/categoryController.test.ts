@@ -1,17 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { CategoryController } from '../controllers/categoryController';
-import { CategoryService } from '../services';
 import { Category } from '../types/api';
-
-const mockCategoryRepository = {
-  findMany: vi.fn(),
-  findById: vi.fn(),
-  create: vi.fn(),
-  update: vi.fn(),
-  delete: vi.fn(),
-  findByName: vi.fn(),
-};
 
 const validCuid = 'cuid1234567890123456789012';
 const validStoreCuid = 'cuid1234567890123456789013';
@@ -21,28 +11,49 @@ describe('CategoryController', () => {
   let categoryController: CategoryController;
   let mockRequest: Partial<FastifyRequest>;
   let mockReply: Partial<FastifyReply>;
-  let mockCategoryService: CategoryService;
+  let mockCategoryService: {
+    getCategories: ReturnType<typeof vi.fn>;
+    getCategoryById: ReturnType<typeof vi.fn>;
+    createCategory: ReturnType<typeof vi.fn>;
+    updateCategory: ReturnType<typeof vi.fn>;
+    deleteCategory: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockCategoryService = new CategoryService(mockCategoryRepository as any);
-    categoryController = new CategoryController(mockCategoryService);
+    mockCategoryService = {
+      getCategories: vi.fn(),
+      getCategoryById: vi.fn(),
+      createCategory: vi.fn(),
+      updateCategory: vi.fn(),
+      deleteCategory: vi.fn(),
+    };
+    categoryController = new CategoryController(mockCategoryService as any);
     mockReply = { send: vi.fn().mockReturnThis(), status: vi.fn().mockReturnThis() };
   });
 
   describe('getCategories', () => {
     it('should return all categories', async () => {
       const mockCategories: Category[] = [
-        { id: validCuid, name: 'Masculina', label: 'Masculino', storeId: validStoreCuid, products: [] },
-        { id: validCategoryCuid, name: 'Feminina', label: 'Feminina', storeId: validStoreCuid, products: [] },
+        {
+          id: validCuid,
+          name: 'Masculina',
+          label: 'Masculino',
+          storeId: validStoreCuid,
+          products: [],
+        },
+        {
+          id: validCategoryCuid,
+          name: 'Feminina',
+          label: 'Feminina',
+          storeId: validStoreCuid,
+          products: [],
+        },
       ];
 
       mockCategoryService.getCategories.mockResolvedValue(mockCategories);
 
-      await categoryController.getCategories(
-        {} as FastifyRequest,
-        mockReply as FastifyReply
-      );
+      await categoryController.getCategories({} as FastifyRequest, mockReply as FastifyReply);
 
       expect(mockCategoryService.getCategories).toHaveBeenCalled();
       expect(mockReply.send).toHaveBeenCalledWith(mockCategories);
@@ -51,14 +62,14 @@ describe('CategoryController', () => {
 
   describe('getCategoryById', () => {
     it('should return category by id', async () => {
-      const mockCategory: Category = { 
-        id: validCuid, 
-        name: 'Masculina', 
-        label: 'Masculino', 
+      const mockCategory: Category = {
+        id: validCuid,
+        name: 'Masculina',
+        label: 'Masculino',
         storeId: validStoreCuid,
-        products: [] 
+        products: [],
       };
-      
+
       mockCategoryService.getCategoryById.mockResolvedValue(mockCategory);
 
       mockRequest = { params: { id: validCuid } } as any;
@@ -75,20 +86,20 @@ describe('CategoryController', () => {
 
   describe('createCategory', () => {
     it('should create category and return 201', async () => {
-      const newCategory = { 
-        id: validCuid, 
-        name: 'Nova', 
-        label: 'Nova Categoria', 
-        storeId: validStoreCuid,
-        products: []
-      };
-      
-      mockCategoryService.createCategory.mockResolvedValue({ 
-        id: validCuid, 
-        name: 'Nova', 
+      const newCategory = {
+        id: validCuid,
+        name: 'Nova',
         label: 'Nova Categoria',
         storeId: validStoreCuid,
-        products: []
+        products: [],
+      };
+
+      mockCategoryService.createCategory.mockResolvedValue({
+        id: validCuid,
+        name: 'Nova',
+        label: 'Nova Categoria',
+        storeId: validStoreCuid,
+        products: [],
       });
 
       mockRequest = {
@@ -111,20 +122,20 @@ describe('CategoryController', () => {
 
   describe('updateCategory', () => {
     it('should update category', async () => {
-      const updatedCategory = { 
-        id: validCuid, 
-        name: 'Atualizada', 
+      const updatedCategory = {
+        id: validCuid,
+        name: 'Atualizada',
         label: 'Atualizada',
         storeId: 'cuid1234567890123456789013',
-        products: []
+        products: [],
       };
-      
-      mockCategoryService.updateCategory.mockResolvedValue({ 
-        id: validCuid, 
-        name: 'Atualizada', 
+
+      mockCategoryService.updateCategory.mockResolvedValue({
+        id: validCuid,
+        name: 'Atualizada',
         label: 'Atualizada',
         storeId: 'cuid1234567890123456789013',
-        products: []
+        products: [],
       });
 
       mockRequest = {
@@ -137,9 +148,9 @@ describe('CategoryController', () => {
         mockReply as FastifyReply
       );
 
-      expect(mockCategoryService.updateCategory).toHaveBeenCalledWith(validCuid, { 
-        name: 'Atualizada', 
-        label: 'Atualizada' 
+      expect(mockCategoryService.updateCategory).toHaveBeenCalledWith(validCuid, {
+        name: 'Atualizada',
+        label: 'Atualizada',
       });
       expect(mockReply.send).toHaveBeenCalledWith(expect.objectContaining({ id: validCuid }));
     });
@@ -147,22 +158,22 @@ describe('CategoryController', () => {
 
   describe('deleteCategory', () => {
     it('should delete category and return 204', async () => {
-      const category = { 
-        id: validCuid, 
-        name: 'Vazia', 
+      const category = {
+        id: validCuid,
+        name: 'Vazia',
         label: 'Vazia',
         storeId: 'cuid1234567890123456789013',
-        products: [] 
+        products: [],
       };
-      
-      mockCategoryService.getCategoryById.mockResolvedValue({ 
-        id: validCuid, 
-        name: 'Vazia', 
+
+      mockCategoryService.getCategoryById.mockResolvedValue({
+        id: validCuid,
+        name: 'Vazia',
         label: 'Vazia',
         storeId: 'cuid1234567890123456789013',
-        products: [] 
+        products: [],
       });
-      
+
       mockCategoryService.deleteCategory.mockResolvedValue(undefined);
 
       mockRequest = { params: { id: validCuid } } as any;

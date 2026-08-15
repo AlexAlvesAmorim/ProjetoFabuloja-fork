@@ -41,6 +41,8 @@ model Product {
   price       Decimal  @db.Decimal(10, 2)
   image       String
   details     String?
+  size        String?
+  color       String?
   categoryId  String
   category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   active      Boolean  @default(true)

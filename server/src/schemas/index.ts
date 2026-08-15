@@ -1,10 +1,40 @@
 import { z } from 'zod';
+import { sanitizeText } from '../utils/sanitize';
 
 export const productCreateSchema = z.object({
-  name: z.string().min(1, 'Nome é obrigatório').max(200),
+  name: z
+    .string()
+    .min(1, 'Nome é obrigatório')
+    .max(200)
+    .transform(v => sanitizeText(v, 200)),
   price: z.number().positive('Preço deve ser positivo').multipleOf(0.01),
-  image: z.string().url('Imagem deve ser uma URL válida'),
-  details: z.string().optional(),
+  image: z
+    .string()
+    .min(1, 'Imagem é obrigatória')
+    .max(500)
+    .refine(
+      v => /^\/(?!\/)|^https?:\/\//.test(v),
+      'Imagem deve ser uma URL válida ou caminho local (/...)'
+    ),
+  details: z
+    .string()
+    .max(2000)
+    .optional()
+    .transform(v => (v ? sanitizeText(v, 2000) : undefined)),
+  size: z
+    .string()
+    .trim()
+    .min(1)
+    .max(20)
+    .optional()
+    .transform(v => (v ? sanitizeText(v, 20) : undefined)),
+  color: z
+    .string()
+    .trim()
+    .min(1)
+    .max(50)
+    .optional()
+    .transform(v => (v ? sanitizeText(v, 50) : undefined)),
   categoryId: z.string().cuid('ID da categoria inválido'),
   active: z.boolean().default(true),
 });

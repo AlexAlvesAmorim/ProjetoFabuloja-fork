@@ -20,6 +20,8 @@ export const ProductForm = () => {
     price: '',
     image: '',
     details: '',
+    size: '',
+    color: '',
     categoryId: '',
     active: true,
   });
@@ -44,6 +46,8 @@ export const ProductForm = () => {
             price: product.price.toString(),
             image: product.image,
             details: product.details || '',
+            size: product.size || '',
+            color: product.color || '',
             categoryId: product.categoryId,
             active: product.active,
           });
@@ -77,6 +81,8 @@ export const ProductForm = () => {
         price: parseFloat(formData.price),
         image: formData.image,
         details: formData.details,
+        size: formData.size || undefined,
+        color: formData.color || undefined,
         categoryId: formData.categoryId,
         active: formData.active,
       };
@@ -191,12 +197,12 @@ export const ProductForm = () => {
           <input
             id="image"
             name="image"
-            type="url"
+            type="text"
             value={formData.image}
             onChange={handleChange}
             required
             className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
-            placeholder="Ex: /manvitrine/lacostetshirt.avif"
+            placeholder="Ex: /manvitrine/lacostetshirt.avif ou https://..."
           />
         </div>
 
@@ -221,9 +227,43 @@ export const ProductForm = () => {
           </select>
         </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label htmlFor="size" className="block text-sm font-medium text-gray-700 mb-1.5">
+              Tamanho
+            </label>
+            <input
+              id="size"
+              name="size"
+              type="text"
+              maxLength={20}
+              value={formData.size}
+              onChange={handleChange}
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+              placeholder="Ex: P, M, G, GG ou 36-44"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="color" className="block text-sm font-medium text-gray-700 mb-1.5">
+              Cor
+            </label>
+            <input
+              id="color"
+              name="color"
+              type="text"
+              maxLength={50}
+              value={formData.color}
+              onChange={handleChange}
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+              placeholder="Ex: Azul, Preto, Vermelho"
+            />
+          </div>
+        </div>
+
         <div>
           <label htmlFor="details" className="block text-sm font-medium text-gray-700 mb-1.5">
-            Detalhes
+            Descrição
           </label>
           <textarea
             id="details"
@@ -232,7 +272,7 @@ export const ProductForm = () => {
             onChange={handleChange}
             rows={4}
             className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
-            placeholder="Descrição do produto, tamanhos disponíveis, cores, etc."
+            placeholder="Descrição do produto"
           />
         </div>
 

@@ -35,13 +35,28 @@ describe('ProductService', () => {
   describe('getProducts', () => {
     it('should return paginated products with meta', async () => {
       const mockProducts = [
-        { id: 'cuid1234567890123456789012', name: 'Product 1', price: 100, categoryId: 'cuid1234567890123456789012' },
-        { id: 'cuid1234567890123456789013', name: 'Product 2', price: 200, categoryId: 'cuid1234567890123456789012' },
+        {
+          id: 'cuid1234567890123456789012',
+          name: 'Product 1',
+          price: 100,
+          categoryId: 'cuid1234567890123456789012',
+        },
+        {
+          id: 'cuid1234567890123456789013',
+          name: 'Product 2',
+          price: 200,
+          categoryId: 'cuid1234567890123456789012',
+        },
       ];
 
       mockProductRepository.findMany.mockResolvedValue({ products: mockProducts, total: 2 });
 
-      const result = await productService.getProducts({ page: 1, limit: 10, sortBy: 'createdAt', sortOrder: 'desc' });
+      const result = await productService.getProducts({
+        page: 1,
+        limit: 10,
+        sortBy: 'createdAt',
+        sortOrder: 'desc',
+      });
 
       expect(result.meta).toEqual({
         page: 1,
@@ -54,16 +69,16 @@ describe('ProductService', () => {
 
   describe('getProductById', () => {
     it('should return product when found', async () => {
-      const mockProduct = { 
-        id: 'cuid1234567890123456789012', 
-        name: 'Product 1', 
+      const mockProduct = {
+        id: 'cuid1234567890123456789012',
+        name: 'Product 1',
         price: 100,
         categoryId: 'cuid1234567890123456789012',
         image: '/test.jpg',
         details: 'Test',
-        active: true
+        active: true,
       };
-      
+
       mockProductRepository.findById.mockResolvedValue(mockProduct);
 
       const result = await productService.getProductById('cuid1234567890123456789012');
@@ -88,14 +103,16 @@ describe('ProductService', () => {
       };
 
       mockCategoryRepository.findById.mockResolvedValue({ id: 'cuid1234567890123456789012' });
-      mockProductRepository.create.mockResolvedValue({ 
-        id: 'cuid1234567890123456789014', 
-        ...input, 
-        categoryId: 'cuid1234567890123456789012' 
+      mockProductRepository.create.mockResolvedValue({
+        id: 'cuid1234567890123456789014',
+        ...input,
+        categoryId: 'cuid1234567890123456789012',
       });
 
       const productService = new ProductService(
-        { create: vi.fn().mockResolvedValue({ id: 'cuid1234567890123456789014', ...input }) } as any,
+        {
+          create: vi.fn().mockResolvedValue({ id: 'cuid1234567890123456789014', ...input }),
+        } as any,
         { findById: vi.fn().mockResolvedValue({ id: 'cuid1234567890123456789012' }) } as any
       );
 
@@ -110,11 +127,11 @@ describe('ProductService', () => {
       );
 
       await expect(
-        productService.createProduct({ 
-          name: 'Test', 
-          price: 100, 
-          image: '/img.jpg', 
-          categoryId: 'invalid' 
+        productService.createProduct({
+          name: 'Test',
+          price: 100,
+          image: '/img.jpg',
+          category: { connect: { id: 'invalid' } },
         })
       ).rejects.toThrow('Categoria não encontrada');
     });
@@ -127,7 +144,9 @@ describe('ProductService', () => {
         { findById: vi.fn().mockResolvedValue({ id: 'cat-1' }) } as any
       );
 
-      const result = await productService.updateProduct('cuid1234567890123456789012', { name: 'Updated' });
+      const result = await productService.updateProduct('cuid1234567890123456789012', {
+        name: 'Updated',
+      });
       expect(result).toBeDefined();
     });
 
@@ -138,6 +157,7 @@ describe('ProductService', () => {
       );
 
       await expect(productService.updateProduct('invalid', {})).rejects.toThrow(AppError);
+    });
 
     it('should throw BadRequest when category not found', async () => {
       const productService = new ProductService(
@@ -145,7 +165,11 @@ describe('ProductService', () => {
         { findById: vi.fn().mockResolvedValue(null) } as any
       );
 
-      await expect(productService.updateProduct('cuid1234567890123456789012', { categoryId: 'invalid' })).rejects.toThrow('Categoria não encontrada');
+      await expect(
+        productService.updateProduct('cuid1234567890123456789012', {
+          category: { connect: { id: 'invalid' } },
+        })
+      ).rejects.toThrow('Categoria não encontrada');
     });
   });
 
@@ -167,5 +191,5 @@ describe('ProductService', () => {
 
       await expect(productService.deleteProduct('invalid')).rejects.toThrow(AppError);
     });
-  }
+  });
 });
