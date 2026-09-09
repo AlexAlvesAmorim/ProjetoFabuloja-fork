@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useProductModal } from './useProductModal';
 import { Product } from '../types/api';
@@ -6,7 +6,7 @@ import { Product } from '../types/api';
 const mockProduct: Product = {
   id: 'cuid1234567890123456789012',
   name: 'Camisa Lacoste',
-  price: 90.00,
+  price: 90.0,
   image: '/manvitrine/lacostetshirt.avif',
   details: 'Disponível em P, M, G, GG',
   categoryId: 'cat-1',
