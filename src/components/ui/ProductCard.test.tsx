@@ -6,7 +6,7 @@ import { Product } from '../../types/api';
 const mockProduct: Product = {
   id: 'cuid1234567890123456789012',
   name: 'Camisa Lacoste',
-  price: 90.00,
+  price: 90.0,
   image: '/manvitrine/lacostetshirt.avif',
   details: 'Disponível em P, M, G, GG. Cores: Preto, Branco, Vermelho, Cinza',
   categoryId: 'cat-1',
@@ -26,7 +26,10 @@ describe('ProductCard', () => {
 
     expect(screen.getByText('Camisa Lacoste')).toBeInTheDocument();
     expect(screen.getByText('R$ 90,00')).toBeInTheDocument();
-    expect(screen.getByAltText('Camisa Lacoste')).toHaveAttribute('src', '/manvitrine/lacostetshirt.avif');
+    expect(screen.getByAltText('Camisa Lacoste')).toHaveAttribute(
+      'src',
+      '/manvitrine/lacostetshirt.avif'
+    );
   });
 
   it('shows "VER DETALHES" on hover', () => {
