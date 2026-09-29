@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { AuthController } from '../controllers/authController';
-import { AppError } from '../middleware/errorHandler';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 

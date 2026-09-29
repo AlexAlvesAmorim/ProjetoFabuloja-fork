@@ -12,7 +12,7 @@ declare module 'fastify' {
 
 function extractToken(request: FastifyRequest): string | null {
   // Prioridade 1: Cookie HttpOnly
-  const cookieToken = (request as any).cookies?.auth_token;
+  const cookieToken = (request.cookies as { auth_token?: string } | undefined)?.auth_token;
   if (cookieToken) return cookieToken;
 
   // Prioridade 2: Authorization header (para compatibilidade/APIs externas)

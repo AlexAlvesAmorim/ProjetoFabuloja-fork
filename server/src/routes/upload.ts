@@ -1,8 +1,10 @@
 import { FastifyInstance } from 'fastify';
+import type { MultipartFile } from '@fastify/multipart';
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import sharp from 'sharp';
 import fs from 'fs/promises';
+import { authenticate, authorize } from '../middleware/auth';
 
 const UPLOAD_DIR = path.join(__dirname, '../../public/uploads');
 
@@ -19,6 +21,9 @@ async function processImage(buffer: Buffer): Promise<string> {
 }
 
 export async function uploadRoutes(app: FastifyInstance) {
+  app.addHook('preHandler', authenticate);
+  app.addHook('preHandler', authorize('ADMIN'));
+
   // Register multipart support
   await app.register(import('@fastify/multipart'), {
     limits: {
@@ -55,7 +60,7 @@ export async function uploadRoutes(app: FastifyInstance) {
   // Multiple images upload (for product gallery)
   app.post('/api/upload/multiple', async (request, reply) => {
     try {
-      const files: any[] = [];
+      const files: MultipartFile[] = [];
       for await (const file of request.files()) {
         const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
         if (!allowedTypes.includes(file.mimetype)) {

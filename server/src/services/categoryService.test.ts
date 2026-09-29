@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { CategoryService } from '../services';
 import { CategoryRepository } from '../repositories';
-import { AppError } from '../middleware/errorHandler';
 import { Category } from '../types/api';
 
 const validCuid = 'cuid1234567890123456789012';

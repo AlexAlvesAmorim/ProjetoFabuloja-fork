@@ -1,7 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { LeadEventService } from '../services';
-import { LeadEventRepository } from '../repositories';
-import { AppError } from '../middleware/errorHandler';
 
 const mockLeadEventRepository = {
   create: vi.fn(),

@@ -54,13 +54,14 @@ export async function registerRoutes(app: FastifyZod) {
   app.get('/api/products/:id', productController.getProductById.bind(productController));
 
   app.post('/api/lead-events', leadEventController.trackEvent.bind(leadEventController));
-  app.get('/api/lead-events', leadEventController.getEvents.bind(leadEventController));
-  app.get('/api/analytics', leadEventController.getAnalytics.bind(leadEventController));
 
   // Admin routes (protected)
   const adminRoutes = async (app: FastifyZod) => {
     app.addHook('preHandler', authenticate);
     app.addHook('preHandler', authorize('ADMIN'));
+
+    app.get('/api/lead-events', leadEventController.getEvents.bind(leadEventController));
+    app.get('/api/analytics', leadEventController.getAnalytics.bind(leadEventController));
 
     app.post('/api/products', productController.createProduct.bind(productController));
     app.put('/api/products/:id', productController.updateProduct.bind(productController));
