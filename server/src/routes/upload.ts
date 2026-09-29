@@ -1,14 +1,12 @@
 import { FastifyInstance } from 'fastify';
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import sharp from 'sharp';
 import fs from 'fs/promises';
 
 const UPLOAD_DIR = path.join(__dirname, '../../public/uploads');
 
-async function processImage(buffer: Buffer, filename: string): Promise<string> {
-  const ext = '.webp';
+async function processImage(buffer: Buffer): Promise<string> {
   const outputFilename = `${uuidv4()}.webp`;
   const outputPath = path.join(UPLOAD_DIR, outputFilename);
 
@@ -45,7 +43,7 @@ export async function uploadRoutes(app: FastifyInstance) {
       }
 
       const buffer = await data.toBuffer();
-      const url = await processImage(await data.toBuffer(), data.filename);
+      const url = await processImage(buffer);
 
       return reply.send({ url });
     } catch (err) {
@@ -73,7 +71,7 @@ export async function uploadRoutes(app: FastifyInstance) {
       const urls = await Promise.all(
         files.map(async file => {
           const buffer = await file.toBuffer();
-          return processImage(buffer, file.filename);
+          return processImage(buffer);
         })
       );
 

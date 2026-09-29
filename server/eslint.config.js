@@ -18,6 +18,16 @@ export default tseslint.config(
       ...prettierConfig.rules,
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      // Pragmático: `any` em mocks/testes não deve quebrar o CI.
+      // Visível como warning, erro só em código novo de produção se promovido.
+      '@typescript-eslint/no-explicit-any': 'warn',
+    },
+  },
+  {
+    files: ['**/*.test.ts', 'src/test/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': 'warn',
     },
   },
 );

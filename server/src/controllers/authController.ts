@@ -37,7 +37,6 @@ export class AuthController {
     });
 
     // Set HttpOnly cookie
-    // @ts-ignore - Fastify cookie methods
     reply.setCookie('auth_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -57,14 +56,12 @@ export class AuthController {
   }
 
   async logout(request: FastifyRequest, reply: FastifyReply) {
-    // @ts-ignore - Fastify cookie methods
     reply.clearCookie('auth_token', { path: '/' });
     return reply.send({ message: 'Logout realizado com sucesso' });
   }
 
   async me(request: FastifyRequest, reply: FastifyReply) {
     // Token vem do cookie HttpOnly automaticamente
-    // @ts-ignore - Fastify cookie type
     const token = request.cookies.auth_token;
     if (!token) {
       return reply.status(401).send({ message: 'Não autenticado' });
@@ -72,8 +69,13 @@ export class AuthController {
 
     try {
       const jwtSecret = process.env.JWT_SECRET || 'dev-secret';
-      const decoded = jwt.verify(token, jwtSecret) as { sub: string; email: string; name: string; role: string };
-      
+      const decoded = jwt.verify(token, jwtSecret) as {
+        sub: string;
+        email: string;
+        name: string;
+        role: string;
+      };
+
       const user = await prisma.user.findUnique({ where: { id: decoded.sub } });
       if (!user) {
         return reply.status(401).send({ message: 'Usuário não encontrado' });

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { ShoppingBag, Menu, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ShoppingBag, Menu, X, UserCog } from 'lucide-react';
 import { useScrollToSection } from '../../hooks/useScrollToSection';
 
 export const Navbar = () => {
@@ -53,9 +54,14 @@ export const Navbar = () => {
                 {link.label}
               </button>
             ))}
-            <button className="bg-sky-600 text-white px-6 py-3 rounded-full hover:bg-sky-700 transition shadow-lg font-medium">
-              Promoções
-            </button>
+            <Link
+              to="/admin"
+              className="flex items-center gap-2 text-gray-500 hover:text-sky-600 transition font-medium"
+              title="Painel Administrativo"
+            >
+              <UserCog className="w-5 h-5" />
+              Admin
+            </Link>
           </div>
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -78,9 +84,13 @@ export const Navbar = () => {
                 {link.label}
               </button>
             ))}
-            <button className="w-full bg-sky-600 text-white py-3 rounded-full hover:bg-sky-700 transition font-medium">
-              Ver Promoções
-            </button>
+            <Link
+              to="/admin"
+              className="flex items-center justify-center gap-2 w-full text-lg text-gray-500 hover:text-sky-600 font-medium"
+            >
+              <UserCog className="w-5 h-5" />
+              Painel Admin
+            </Link>
           </div>
         </div>
       )}

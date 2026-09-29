@@ -3,6 +3,16 @@ import { renderHook, act } from '@testing-library/react';
 import { useProductModal } from './useProductModal';
 import { Product } from '../types/api';
 
+vi.mock('../lib/api', () => ({
+  api: {
+    get: vi.fn(),
+    post: vi.fn().mockResolvedValue({}),
+    put: vi.fn(),
+    delete: vi.fn(),
+  },
+  ApiError: class ApiError extends Error {},
+}));
+
 const mockProduct: Product = {
   id: 'cuid1234567890123456789012',
   name: 'Camisa Lacoste',

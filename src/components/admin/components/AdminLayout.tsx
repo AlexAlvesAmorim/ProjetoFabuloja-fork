@@ -1,5 +1,5 @@
 import { ReactNode, useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   Package,
@@ -10,6 +10,7 @@ import {
   X,
   ShoppingBag,
 } from 'lucide-react';
+import { useAuth } from '../../../contexts/admin/AuthContext';
 
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
@@ -20,6 +21,13 @@ const navigation = [
 
 export const AdminLayout = ({ children }: { children: ReactNode }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/admin/login', { replace: true });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -80,7 +88,10 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
 
           {/* Logout */}
           <div className="p-4 border-t border-gray-200">
-            <button className="flex items-center gap-3 w-full px-3 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-lg transition-colors">
+            <button
+              onClick={handleLogout}
+              className="flex items-center justify-center gap-2 w-full px-3 py-2.5 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors shadow-sm"
+            >
               <LogOut className="w-5 h-5" aria-hidden="true" />
               Sair
             </button>
@@ -92,7 +103,7 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
       <div className="lg:pl-64">
         {/* Top bar */}
         <header className="sticky top-0 z-30 bg-white border-b border-gray-200">
-          <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+          <div className="relative flex items-center h-16 px-4 sm:px-6 lg:px-8">
             <button
               onClick={() => setSidebarOpen(true)}
               className="lg:hidden p-2 text-gray-500 hover:text-gray-700 rounded-md"
@@ -100,11 +111,8 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
             >
               <Menu className="w-6 h-6" />
             </button>
-            <div className="flex-1 lg:flex-none">
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <h1 className="text-lg font-semibold text-gray-900">Painel Administrativo</h1>
-            </div>
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-500 hidden sm:block">Fabulosa Modas</span>
             </div>
           </div>
         </header>
