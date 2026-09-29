@@ -305,20 +305,35 @@ async function main() {
   }
   console.log(`✅ Created ${feminineProducts.length} feminine products`);
 
-  // Create admin user
-  const passwordHash = await bcrypt.hash('admin123', 12);
+  // Create admin user (credenciais via env — nunca chapadas no código)
+  const adminEmail = process.env.SEED_ADMIN_EMAIL || 'admin@fabulosamodas.com';
+  let adminPassword = process.env.SEED_ADMIN_PASSWORD;
+  let generatedPassword = false;
+  if (!adminPassword) {
+    adminPassword =
+      typeof crypto !== 'undefined' && 'randomUUID' in crypto
+        ? crypto.randomUUID() + crypto.randomUUID()
+        : Math.random().toString(36).slice(2) + Date.now().toString(36);
+    generatedPassword = true;
+  }
+  const passwordHash = await bcrypt.hash(adminPassword, 12);
 
   await prisma.user.upsert({
-    where: { email: 'admin@fabulosamodas.com' },
+    where: { email: adminEmail },
     update: {},
     create: {
-      email: 'admin@fabulosamodas.com',
+      email: adminEmail,
       passwordHash,
       name: 'Admin Fabulosa',
       role: 'ADMIN',
     },
   });
-  console.log('✅ Admin user created: admin@fabulosamodas.com / admin123');
+  if (generatedPassword) {
+    console.log(`⚠️  SEED_ADMIN_PASSWORD não definido — senha gerada: ${adminPassword}`);
+    console.log('⚠️  Troque após o primeiro login. Não use em produção.');
+  } else {
+    console.log(`✅ Admin user ensured: ${adminEmail}`);
+  }
 
   console.log('🎉 Seed completed successfully!');
 }

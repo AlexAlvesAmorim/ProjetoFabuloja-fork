@@ -11,6 +11,7 @@ import { LeadEventService } from '../services';
 import { ProductRepository, CategoryRepository, LeadEventRepository } from '../repositories';
 import { authenticate, authorize } from '../middleware/auth';
 import { uploadRoutes } from './upload';
+import { env } from '../config/index.js';
 
 type FastifyZod = FastifyInstance<
   RawServerDefault,
@@ -41,25 +42,51 @@ export async function registerRoutes(app: FastifyZod) {
     version: '1.0.0',
   }));
 
-  // Public auth routes
-  app.post('/api/auth/login', authController.login.bind(authController));
+  // Public auth routes (login com limite próprio anti brute-force)
+  app.post(
+    '/api/auth/login',
+    {
+      config: {
+        rateLimit: {
+          max: env.rateLimit.loginMax,
+          timeWindow: env.rateLimit.loginWindowMs,
+          allowList: [],
+        },
+      },
+    },
+    authController.login.bind(authController)
+  );
   app.post('/api/auth/logout', authController.logout.bind(authController));
   app.get('/api/auth/me', authController.me.bind(authController));
 
-  // Upload routes (public for now, could add auth later)
+  // Upload routes (protegidas: só ADMIN, hooks dentro do plugin)
   await app.register(uploadRoutes);
 
   // Public API routes
   app.get('/api/products', productController.getProducts.bind(productController));
   app.get('/api/products/:id', productController.getProductById.bind(productController));
 
-  app.post('/api/lead-events', leadEventController.trackEvent.bind(leadEventController));
+  // Tracking público com throttle anti-spam (uso real da vitrine fica longe do teto)
+  app.post(
+    '/api/lead-events',
+    {
+      config: {
+        rateLimit: {
+          max: env.rateLimit.trackMax,
+          timeWindow: env.rateLimit.trackWindowMs,
+          allowList: [],
+        },
+      },
+    },
+    leadEventController.trackEvent.bind(leadEventController)
+  );
 
   // Admin routes (protected)
   const adminRoutes = async (app: FastifyZod) => {
     app.addHook('preHandler', authenticate);
     app.addHook('preHandler', authorize('ADMIN'));
 
+    app.post('/api/auth/register', authController.register.bind(authController));
     app.get('/api/lead-events', leadEventController.getEvents.bind(leadEventController));
     app.get('/api/analytics', leadEventController.getAnalytics.bind(leadEventController));
 

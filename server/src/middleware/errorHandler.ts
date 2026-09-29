@@ -104,6 +104,19 @@ export const errorHandler = async (
     return reply.status(404).send(response);
   }
 
+  // Erros com statusCode próprio (ex: 429 do rate-limit, 413 do Fastify)
+  if (typeof error.statusCode === 'number' && error.statusCode !== 500) {
+    const response: ApiErrorResponse = {
+      statusCode: error.statusCode,
+      error: getErrorName(error.statusCode),
+      message: error.message,
+      timestamp: new Date().toISOString(),
+      path: request.url,
+    };
+
+    return reply.status(error.statusCode).send(response);
+  }
+
   const response: ApiErrorResponse = {
     statusCode: 500,
     error: 'Internal Server Error',
@@ -123,6 +136,7 @@ function getErrorName(statusCode: number): string {
     404: 'Not Found',
     409: 'Conflict',
     422: 'Unprocessable Entity',
+    429: 'Too Many Requests',
     500: 'Internal Server Error',
   };
   return names[statusCode] || 'Error';

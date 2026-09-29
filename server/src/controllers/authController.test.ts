@@ -6,7 +6,7 @@ import jwt from 'jsonwebtoken';
 
 const { prismaMock } = vi.hoisted(() => ({
   prismaMock: {
-    user: { findUnique: vi.fn(), update: vi.fn() },
+    user: { findUnique: vi.fn(), update: vi.fn(), create: vi.fn() },
   },
 }));
 
@@ -177,6 +177,45 @@ describe('AuthController', () => {
           }),
         })
       );
+    });
+  });
+
+  describe('register', () => {
+    it('should create admin and return 201', async () => {
+      prismaMock.user.findUnique.mockResolvedValue(null);
+      vi.mocked(bcrypt.hash).mockResolvedValue('hashed' as never);
+      prismaMock.user.create.mockResolvedValue({
+        id: 'cuid1234567890123456789013',
+        email: 'novo@test.com',
+        name: 'Novo',
+        role: 'ADMIN',
+      });
+
+      mockRequest = {
+        body: { email: 'novo@test.com', password: 'senha123', name: 'Novo' },
+      } as any;
+      mockReply = { status: vi.fn().mockReturnThis(), send: vi.fn() };
+
+      await authController.register(mockRequest as FastifyRequest, mockReply as FastifyReply);
+
+      expect(prismaMock.user.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({ email: 'novo@test.com', name: 'Novo', role: 'ADMIN' }),
+      });
+      expect(mockReply.status).toHaveBeenCalledWith(201);
+    });
+
+    it('should return 409 when email already exists', async () => {
+      prismaMock.user.findUnique.mockResolvedValue({ id: 'cuid1234567890123456789012' });
+
+      mockRequest = {
+        body: { email: 'novo@test.com', password: 'senha123', name: 'Novo' },
+      } as any;
+      mockReply = { status: vi.fn().mockReturnThis(), send: vi.fn() };
+
+      await authController.register(mockRequest as FastifyRequest, mockReply as FastifyReply);
+
+      expect(mockReply.status).toHaveBeenCalledWith(409);
+      expect(prismaMock.user.create).not.toHaveBeenCalled();
     });
   });
 });

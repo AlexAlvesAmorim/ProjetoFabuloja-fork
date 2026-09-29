@@ -2,6 +2,7 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
+import { env } from '../config/index.js';
 
 const prisma = new PrismaClient();
 
@@ -22,8 +23,8 @@ export class AuthController {
       return reply.status(401).send({ message: 'Credenciais inválidas' });
     }
 
-    const jwtSecret = process.env.JWT_SECRET || 'dev-secret';
-    const jwtExpiresIn = process.env.JWT_EXPIRES_IN || '7d';
+    const jwtSecret = env.jwt.secret;
+    const jwtExpiresIn = env.jwt.expiresIn;
 
     const token = jwt.sign(
       { sub: user.id, email: user.email, name: user.name, role: user.role },
@@ -60,6 +61,34 @@ export class AuthController {
     return reply.send({ message: 'Logout realizado com sucesso' });
   }
 
+  // Criação de admin — rota protegida (só ADMIN logado). Role sempre ADMIN,
+  // nunca vinda do body, pra não virar escalação de privilégio.
+  async register(
+    request: FastifyRequest<{ Body: { email: string; password: string; name: string } }>,
+    reply: FastifyReply
+  ) {
+    const { email, password, name } = request.body;
+
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) {
+      return reply.status(409).send({ message: 'Email já cadastrado' });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 12);
+    const user = await prisma.user.create({
+      data: { email, passwordHash, name, role: 'ADMIN' },
+    });
+
+    return reply.status(201).send({
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      },
+    });
+  }
+
   async me(request: FastifyRequest, reply: FastifyReply) {
     // Token vem do cookie HttpOnly automaticamente
     const token = request.cookies.auth_token;
@@ -68,7 +97,7 @@ export class AuthController {
     }
 
     try {
-      const jwtSecret = process.env.JWT_SECRET || 'dev-secret';
+      const jwtSecret = env.jwt.secret;
       const decoded = jwt.verify(token, jwtSecret) as {
         sub: string;
         email: string;
