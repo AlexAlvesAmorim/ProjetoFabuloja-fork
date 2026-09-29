@@ -108,13 +108,7 @@ export const AdminLogin = () => {
             </form>
 
             <div className="mt-6 pt-6 border-t border-gray-200">
-              <p className="text-sm text-gray-500 text-center">
-                Credenciais de teste: <br />
-                <code className="bg-gray-100 px-2 py-1 rounded text-xs">
-                  admin@fabulosamodas.com
-                </code>{' '}
-                / <code className="bg-gray-100 px-2 py-1 rounded text-xs">admin123</code>
-              </p>
+              <p className="text-sm text-gray-500 text-center">Acesso restrito à equipe da loja.</p>
             </div>
           </div>
         </div>

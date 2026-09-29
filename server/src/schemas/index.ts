@@ -101,6 +101,17 @@ export const authLoginSchema = z.object({
   password: z.string().min(6, 'Senha deve ter no mínimo 6 caracteres'),
 });
 
-export const authRegisterSchema = authLoginSchema.extend({
+// Política de senha forte: 8+ chars, 2 números, maiúscula, minúscula e especial
+export const strongPasswordSchema = z
+  .string()
+  .min(8, 'Senha deve ter no mínimo 8 caracteres')
+  .regex(/(?:.*\d){2}/, 'Senha deve conter pelo menos 2 números')
+  .regex(/[A-Z]/, 'Senha deve conter pelo menos 1 letra maiúscula')
+  .regex(/[a-z]/, 'Senha deve conter pelo menos 1 letra minúscula')
+  .regex(/[^A-Za-z0-9]/, 'Senha deve conter pelo menos 1 caractere especial');
+
+export const authRegisterSchema = z.object({
+  email: z.string().email('Email inválido'),
+  password: strongPasswordSchema,
   name: z.string().min(2, 'Nome deve ter no mínimo 2 caracteres'),
 });

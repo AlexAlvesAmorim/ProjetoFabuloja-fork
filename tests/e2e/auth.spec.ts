@@ -1,5 +1,9 @@
 import { test, expect } from '@playwright/test';
 
+// Credenciais via env no CI (E2E_ADMIN_EMAIL/PASSWORD); fallback só pro dev local
+const ADMIN_EMAIL = process.env.E2E_ADMIN_EMAIL || 'admin@fabulosamodas.com';
+const ADMIN_PASSWORD = process.env.E2E_ADMIN_PASSWORD || 'admin123';
+
 test.describe('Authentication', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/admin/login');
@@ -21,8 +25,8 @@ test.describe('Authentication', () => {
   });
 
   test('should login successfully with valid credentials', async ({ page }) => {
-    await page.fill('input[type="email"]', 'admin@fabulosamodas.com');
-    await page.fill('input[type="password"]', 'admin123');
+    await page.fill('input[type="email"]', ADMIN_EMAIL);
+    await page.fill('input[type="password"]', ADMIN_PASSWORD);
     await page.click('button[type="submit"]');
 
     // Should redirect to dashboard
@@ -32,8 +36,8 @@ test.describe('Authentication', () => {
 
   test('should logout successfully', async ({ page }) => {
     // First login
-    await page.fill('input[type="email"]', 'admin@fabulosamodas.com');
-    await page.fill('input[type="password"]', 'admin123');
+    await page.fill('input[type="email"]', ADMIN_EMAIL);
+    await page.fill('input[type="password"]', ADMIN_PASSWORD);
     await page.click('button[type="submit"]');
     await page.waitForURL(/\/admin\/dashboard/);
 

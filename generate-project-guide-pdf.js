@@ -412,7 +412,7 @@ npm run dev`},
 # Frontend: http://localhost:5173
 # API: http://localhost:3000
 # Admin: http://localhost:5173/admin/login
-# Demo: admin@fabulosamodas.com / admin123`},
+# Demo: admin@fabulosamodas.com / <senha do SEED_ADMIN_PASSWORD>`},
   { type: 'subheading', text: 'Testes' },
   { type: 'code', text: `# Frontend
 npm run test           # Vitest watch

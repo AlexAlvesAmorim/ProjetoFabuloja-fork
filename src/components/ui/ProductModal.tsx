@@ -23,7 +23,8 @@ export const ProductModal = ({
 *${product.name}*
 Preço: R$ ${formatPrice(product.price)}
 Vim pelo site da Fabulosa Modas!`;
-    const whatsappLink = `https://wa.me/5521976807111?text=${encodeURIComponent(mensagem)}`;
+    const whatsappNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '5521976807111';
+    const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(mensagem)}`;
     window.open(whatsappLink, '_blank');
   };
 

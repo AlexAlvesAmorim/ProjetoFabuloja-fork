@@ -1,11 +1,15 @@
 import { test, expect } from '@playwright/test';
 
+// Credenciais via env no CI (E2E_ADMIN_EMAIL/PASSWORD); fallback só pro dev local
+const ADMIN_EMAIL = process.env.E2E_ADMIN_EMAIL || 'admin@fabulosamodas.com';
+const ADMIN_PASSWORD = process.env.E2E_ADMIN_PASSWORD || 'admin123';
+
 test.describe('Admin Panel', () => {
   test.beforeEach(async ({ page }) => {
     // Login before each test
     await page.goto('/admin/login');
-    await page.fill('input[type="email"]', 'admin@fabulosamodas.com');
-    await page.fill('input[type="password"]', 'admin123');
+    await page.fill('input[type="email"]', ADMIN_EMAIL);
+    await page.fill('input[type="password"]', ADMIN_PASSWORD);
     await page.click('button[type="submit"]');
     await page.waitForURL('/admin/dashboard');
   });
@@ -13,7 +17,7 @@ test.describe('Admin Panel', () => {
   test.describe('Dashboard', () => {
     test('should display dashboard with stats', async ({ page }) => {
       await expect(page.locator('h1')).toContainText('Dashboard');
-      
+
       // Check stat cards
       await expect(page.locator('text=Total de Produtos')).toBeVisible();
       await expect(page.locator('text=Categorias')).toBeVisible();
@@ -57,15 +61,15 @@ test.describe('Admin Panel', () => {
 
     test('should create new product', async ({ page }) => {
       await page.click('a:has-text("Novo Produto")');
-      
+
       await page.fill('input[name="name"]', 'Produto Teste E2E');
       await page.fill('input[name="price"]', '99.90');
       await page.fill('input[name="image"]', '/manvitrine/lacostetshirt.avif');
       await page.selectOption('select[name="categoryId"]', { label: 'Masculino' });
       await page.fill('textarea[name="details"]', 'Detalhes do produto teste');
-      
+
       await page.click('button:has-text("Criar")');
-      
+
       // Should redirect back to products list
       await expect(page).toHaveURL(/\/admin\/products/);
     });
@@ -84,11 +88,11 @@ test.describe('Admin Panel', () => {
 
     test('should create new category', async ({ page }) => {
       await page.click('button:has-text("Nova Categoria")');
-      
+
       await page.fill('input[name="name"]', 'e2e-test');
       await page.fill('input[name="label"]', 'E2E Test');
       await page.click('button:has-text("Criar")');
-      
+
       await expect(page.locator('text=E2E Test')).toBeVisible();
     });
   });
@@ -101,7 +105,7 @@ test.describe('Admin Panel', () => {
 
     test('should display analytics dashboard', async ({ page }) => {
       await expect(page.locator('h1')).toContainText('Analytics');
-      
+
       // Check stat cards
       await expect(page.locator('text=Visualizações')).toBeVisible();
       await expect(page.locator('text=Cliques em Comprar')).toBeVisible();
@@ -112,10 +116,10 @@ test.describe('Admin Panel', () => {
     test('should filter by date range', async ({ page }) => {
       const today = new Date().toISOString().split('T')[0];
       const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-      
+
       await page.fill('input[type="date"]:nth-of-type(1)', weekAgo);
       await page.fill('input[type="date"]:nth-of-type(2)', today);
-      
+
       // Should reload analytics
       await expect(page.locator('text=Visualizações')).toBeVisible();
     });

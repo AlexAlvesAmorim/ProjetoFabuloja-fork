@@ -22,6 +22,11 @@ function resolveJwtSecret(): string {
   return secret;
 }
 
+const cookieSameSiteRaw = process.env.COOKIE_SAMESITE || 'strict';
+if (!['strict', 'lax', 'none'].includes(cookieSameSiteRaw)) {
+  throw new Error('COOKIE_SAMESITE inválido: use strict, lax ou none');
+}
+
 export const env = {
   port: parseInt(process.env.PORT || '3000', 10),
   host: process.env.HOST || '0.0.0.0',
@@ -33,6 +38,15 @@ export const env = {
   },
   cors: {
     origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  },
+  // Atrás de proxy (Render/Fly) o IP real vem de X-Forwarded-For.
+  // Sem isso o rate-limit enxerga todo mundo como um IP só.
+  // Só ligue quando houver proxy confiável na frente (spoofável sem proxy).
+  trustProxy: process.env.TRUST_PROXY === 'true',
+  cookie: {
+    // Deploy separado (front e API em domínios diferentes) exige sameSite=none.
+    // Browsers só aceitam sameSite=none com secure, então ele é forçado abaixo.
+    sameSite: cookieSameSiteRaw as 'strict' | 'lax' | 'none',
   },
   rateLimit: {
     max: parseInt(process.env.RATE_LIMIT_MAX || '100', 10),

@@ -10,6 +10,7 @@ import { CategoryService } from '../services';
 import { LeadEventService } from '../services';
 import { ProductRepository, CategoryRepository, LeadEventRepository } from '../repositories';
 import { authenticate, authorize } from '../middleware/auth';
+import { csrfProtection } from '../middleware/csrf';
 import { uploadRoutes } from './upload';
 import { env } from '../config/index.js';
 
@@ -41,6 +42,9 @@ export async function registerRoutes(app: FastifyZod) {
     uptime: process.uptime(),
     version: '1.0.0',
   }));
+
+  // Anti-CSRF em toda mutação (vale pra rotas públicas e encapsuladas abaixo)
+  app.addHook('preHandler', csrfProtection);
 
   // Public auth routes (login com limite próprio anti brute-force)
   app.post(

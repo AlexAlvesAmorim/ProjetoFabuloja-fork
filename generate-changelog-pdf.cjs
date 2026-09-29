@@ -221,7 +221,7 @@ docker compose up -d
 # Frontend: http://localhost:5173
 # API: http://localhost:3000
 # Admin: http://localhost:5173/admin/login
-# Login: admin@fabulosamodas.com / admin123
+# Login: admin@fabulosamodas.com / <senha do SEED_ADMIN_PASSWORD>
 
 # Opção 2: Desenvolvimento local (sem Docker)
 # Terminal 1 - API + DB

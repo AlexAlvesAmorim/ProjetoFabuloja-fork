@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 import { env } from '../config/index.js';
+import { authRegisterSchema } from '../schemas/index.js';
 
 const prisma = new PrismaClient();
 
@@ -37,11 +38,12 @@ export class AuthController {
       data: { lastLoginAt: new Date() },
     });
 
-    // Set HttpOnly cookie
+    // Set HttpOnly cookie (sameSite=none exige secure nos browsers)
+    const sameSite = env.cookie.sameSite;
     reply.setCookie('auth_token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: env.isProduction || sameSite === 'none',
+      sameSite,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
       path: '/',
     });
@@ -67,7 +69,7 @@ export class AuthController {
     request: FastifyRequest<{ Body: { email: string; password: string; name: string } }>,
     reply: FastifyReply
   ) {
-    const { email, password, name } = request.body;
+    const { email, password, name } = authRegisterSchema.parse(request.body);
 
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {

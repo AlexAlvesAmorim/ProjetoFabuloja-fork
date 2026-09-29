@@ -192,7 +192,7 @@ describe('AuthController', () => {
       });
 
       mockRequest = {
-        body: { email: 'novo@test.com', password: 'senha123', name: 'Novo' },
+        body: { email: 'novo@test.com', password: 'Se123456!', name: 'Novo' },
       } as any;
       mockReply = { status: vi.fn().mockReturnThis(), send: vi.fn() };
 
@@ -208,13 +208,25 @@ describe('AuthController', () => {
       prismaMock.user.findUnique.mockResolvedValue({ id: 'cuid1234567890123456789012' });
 
       mockRequest = {
-        body: { email: 'novo@test.com', password: 'senha123', name: 'Novo' },
+        body: { email: 'novo@test.com', password: 'Se123456!', name: 'Novo' },
       } as any;
       mockReply = { status: vi.fn().mockReturnThis(), send: vi.fn() };
 
       await authController.register(mockRequest as FastifyRequest, mockReply as FastifyReply);
 
       expect(mockReply.status).toHaveBeenCalledWith(409);
+      expect(prismaMock.user.create).not.toHaveBeenCalled();
+    });
+
+    it('should reject weak password', async () => {
+      mockRequest = {
+        body: { email: 'novo@test.com', password: 'fraca', name: 'Novo' },
+      } as any;
+      mockReply = { status: vi.fn().mockReturnThis(), send: vi.fn() };
+
+      await expect(
+        authController.register(mockRequest as FastifyRequest, mockReply as FastifyReply)
+      ).rejects.toThrow();
       expect(prismaMock.user.create).not.toHaveBeenCalled();
     });
   });

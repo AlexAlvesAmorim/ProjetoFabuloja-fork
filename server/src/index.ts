@@ -14,7 +14,11 @@ export async function buildApp() {
   const app = Fastify({
     logger: env.isDevelopment ? { transport: { target: 'pino-pretty' } } : true,
     ajv: { customOptions: { coerceTypes: 'array' } },
+    trustProxy: env.trustProxy,
   }).withTypeProvider<ZodTypeProvider>();
+
+  // Origens que podem falar com a API (http + websocket juntos)
+  const apiOrigins = [env.cors.origin, env.cors.origin.replace(/^http/, 'ws')];
 
   await app.register(sensible);
   await app.register(cookie);
@@ -25,7 +29,7 @@ export async function buildApp() {
         scriptSrc: ["'self'"],
         styleSrc: ["'self'", "'unsafe-inline'"],
         imgSrc: ["'self'", 'data:', 'https:', 'blob:'],
-        connectSrc: ["'self'", 'http://localhost:3000', 'ws://localhost:3000'],
+        connectSrc: ["'self'", ...apiOrigins],
         fontSrc: ["'self'", 'https://fonts.gstatic.com', 'https://fonts.googleapis.com'],
         styleSrcElem: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
         frameAncestors: ["'none'"],

@@ -1,5 +1,7 @@
 import { PrismaClient, Prisma } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { z } from 'zod';
+import { strongPasswordSchema } from '../src/schemas/index.js';
 
 const prisma = new PrismaClient();
 
@@ -315,6 +317,16 @@ async function main() {
         ? crypto.randomUUID() + crypto.randomUUID()
         : Math.random().toString(36).slice(2) + Date.now().toString(36);
     generatedPassword = true;
+  } else {
+    try {
+      strongPasswordSchema.parse(adminPassword);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        console.error('❌ SEED_ADMIN_PASSWORD fraca: ' + err.errors.map(e => e.message).join('; '));
+        process.exit(1);
+      }
+      throw err;
+    }
   }
   const passwordHash = await bcrypt.hash(adminPassword, 12);
 
